@@ -1,31 +1,37 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import io
 from langchain_community.llms import Ollama
 
-# ==============================
+# ===============================
 # PAGE CONFIG (MUST BE FIRST)
-# ==============================
+# ===============================
 st.set_page_config(
     page_title="StatBot Pro",
     page_icon="📊",
     layout="wide"
 )
 
-# ==============================
-# CUSTOM PROFESSIONAL UI
-# ==============================
+# ===============================
+# PROFESSIONAL UI + FONT FIX
+# ===============================
 st.markdown("""
     <style>
+        body {
+            color: black;
+        }
         .main {
             background-color: #f5f7fa;
+            color: black;
         }
-        h1 {
-            color: #1f4e79;
+        h1, h2, h3, h4 {
+            color: #1f4e79 !important;
         }
-        .stTextInput>div>div>input {
-            background-color: #ffffff;
+        .stTextInput label {
+            color: black !important;
+        }
+        .stMarkdown {
+            color: black !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -34,15 +40,15 @@ st.title("📊 StatBot Pro")
 st.markdown("### AI-Powered CSV Data Analyst")
 st.markdown("Upload your dataset and ask intelligent questions.")
 
-# ==============================
-# SESSION STATE FOR CHAT
-# ==============================
+# ===============================
+# CHAT MEMORY
+# ===============================
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# ==============================
+# ===============================
 # FILE UPLOAD
-# ==============================
+# ===============================
 uploaded_file = st.file_uploader("Upload CSV File", type=["csv"])
 
 if uploaded_file:
@@ -53,7 +59,7 @@ if uploaded_file:
 
     st.markdown("---")
 
-    question = st.text_input("💬 Ask a question about your data")
+    question = st.text_input("💬 Ask something about your data")
 
     if question:
         st.session_state.chat_history.append(("User", question))
@@ -61,14 +67,13 @@ if uploaded_file:
         llm = Ollama(model="phi")
 
         with st.spinner("Analyzing..."):
-
             q = question.lower()
             answer = ""
 
             try:
-                # ==============================
-                # BASIC ANALYTICS LOGIC
-                # ==============================
+                # ===============================
+                # AUTO ANALYSIS LOGIC
+                # ===============================
 
                 if "total" in q and "sales" in q:
                     result = df["Sales"].sum()
@@ -90,14 +95,14 @@ if uploaded_file:
                     answer = "Bar chart generated successfully."
 
                 else:
-                    # Fallback to AI explanation
+                    # AI fallback response
                     prompt = f"""
-                    You are a data analyst.
-                    Here is the dataset preview:
+                    You are a professional data analyst.
+                    Here is dataset preview:
                     {df.head()}
 
                     Question: {question}
-                    Answer clearly and concisely.
+                    Give clear answer.
                     """
                     answer = llm(prompt)
 
@@ -106,28 +111,28 @@ if uploaded_file:
 
         st.session_state.chat_history.append(("AI", answer))
 
-    # ==============================
-    # DISPLAY CHAT HISTORY
-    # ==============================
+    # ===============================
+    # DISPLAY CHAT
+    # ===============================
     for role, msg in st.session_state.chat_history:
         if role == "User":
             st.markdown(f"🧑 **You:** {msg}")
         else:
             st.markdown(f"🤖 **StatBot:** {msg}")
 
-    # ==============================
-    # DOWNLOAD REPORT
-    # ==============================
+    # ===============================
+    # DOWNLOAD REPORT BUTTON
+    # ===============================
     if st.session_state.chat_history:
-        report_content = "StatBot Pro Analysis Report\n"
-        report_content += "================================\n\n"
+        report = "StatBot Pro Analysis Report\n"
+        report += "=================================\n\n"
 
         for role, msg in st.session_state.chat_history:
-            report_content += f"{role}: {msg}\n\n"
+            report += f"{role}: {msg}\n\n"
 
         st.download_button(
             label="📥 Download Analysis Report",
-            data=report_content,
+            data=report,
             file_name="statbot_report.txt",
             mime="text/plain"
         )
