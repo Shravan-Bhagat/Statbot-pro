@@ -13,25 +13,43 @@ st.set_page_config(
 )
 
 # ===============================
-# PROFESSIONAL UI + FONT FIX
+# FORCE LIGHT THEME + DARK TEXT
 # ===============================
 st.markdown("""
     <style>
-        body {
-            color: black;
+        html, body, [class*="css"]  {
+            background-color: #f5f7fa !important;
+            color: #000000 !important;
         }
-        .main {
-            background-color: #f5f7fa;
-            color: black;
+
+        .stTextInput input {
+            color: black !important;
+            background-color: white !important;
         }
-        h1, h2, h3, h4 {
-            color: #1f4e79 !important;
-        }
+
         .stTextInput label {
             color: black !important;
         }
-        .stMarkdown {
+
+        .stMarkdown, .stDataFrame, .stTable {
             color: black !important;
+        }
+
+        .chat-user {
+            background-color: #d1e7ff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            color: black;
+        }
+
+        .chat-bot {
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #dcdcdc;
+            color: black;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -71,10 +89,6 @@ if uploaded_file:
             answer = ""
 
             try:
-                # ===============================
-                # AUTO ANALYSIS LOGIC
-                # ===============================
-
                 if "total" in q and "sales" in q:
                     result = df["Sales"].sum()
                     answer = f"Total Sales = {result}"
@@ -95,7 +109,6 @@ if uploaded_file:
                     answer = "Bar chart generated successfully."
 
                 else:
-                    # AI fallback response
                     prompt = f"""
                     You are a professional data analyst.
                     Here is dataset preview:
@@ -112,16 +125,16 @@ if uploaded_file:
         st.session_state.chat_history.append(("AI", answer))
 
     # ===============================
-    # DISPLAY CHAT
+    # DISPLAY CHAT WITH BUBBLES
     # ===============================
     for role, msg in st.session_state.chat_history:
         if role == "User":
-            st.markdown(f"🧑 **You:** {msg}")
+            st.markdown(f"<div class='chat-user'><b>You:</b> {msg}</div>", unsafe_allow_html=True)
         else:
-            st.markdown(f"🤖 **StatBot:** {msg}")
+            st.markdown(f"<div class='chat-bot'><b>StatBot:</b> {msg}</div>", unsafe_allow_html=True)
 
     # ===============================
-    # DOWNLOAD REPORT BUTTON
+    # DOWNLOAD REPORT
     # ===============================
     if st.session_state.chat_history:
         report = "StatBot Pro Analysis Report\n"
